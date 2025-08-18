@@ -1,0 +1,17 @@
+{
+  "targets": {
+    "release": {
+      "outFile": "build/release.wasm",
+      "optimizeLevel": 3,
+      "shrinkLevel": 2,
+      "converge": true,
+      "noAssert": true,
+      "runtime": "stub",
+      "transform": ["json-as/transform"]
+    }
+  },
+  "options": {
+    "exportRuntime": false,
+    "bindings": "raw"
+  }
+}

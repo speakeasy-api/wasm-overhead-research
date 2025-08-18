@@ -29,8 +29,9 @@ const importObject = {
 const wasmModule = await WebAssembly.instantiate(wasmBytes, importObject);
 const wasmInstance = wasmModule.instance;
 
-// Initialize WASI - now that we have a _start function, we can call start
-wasi.start(wasmInstance);
+// Initialize WASI even though we don't have _start
+// This is needed for memory operations to work properly
+wasi.initialize(wasmInstance);
 
 // Helper functions to work with C strings
 function allocateString(wasmInstance, str) {

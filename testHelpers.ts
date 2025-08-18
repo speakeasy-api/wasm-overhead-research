@@ -13,24 +13,25 @@ export function callGoFunction(fn: any, ...args: any[]): Promise<string> {
 // Check if current build is using Javy
 async function isJavyBuild(): Promise<boolean> {
   try {
-    // Check if javy-adapter.js exists in the current implementation
-    const javyAdapterPath = path.join(
+    // Check if the Javy dynamic WASM exists in the expected location
+    // This is only present when Javy build was run
+    const javyDynamicPath = path.join(
       __dirname,
-      "implementations/javy/javy-adapter.js"
+      "implementations/javy/transform_dynamic.wasm"
     );
-    await access(javyAdapterPath);
-
-    // Also check if the current symlink points to javy implementation
-    const mainGoPath = path.join(__dirname, "main.go");
-    try {
-      const mainGoContent = await readFile(mainGoPath, "utf8");
-      // This is a simple heuristic - in a real implementation you might check the symlink target
-      return false; // Go implementations will have main.go
-    } catch {
-      // If main.go doesn't exist, might be a Javy build
-      return true;
-    }
+    await access(javyDynamicPath);
+    
+    // Additionally check if the current lib.wasm.gz was built from Javy
+    // by checking if plugin.wasm exists (only created by Javy build)
+    const javyPluginPath = path.join(
+      __dirname,
+      "implementations/javy/plugin.wasm"
+    );
+    await access(javyPluginPath);
+    
+    return true;
   } catch {
+    // If Javy artifacts don't exist, this is not a Javy build
     return false;
   }
 }

@@ -3,9 +3,9 @@ name = "quickjs-transform"
 version = "0.1.0"
 edition = "2021"
 
-[[bin]]
+[lib]
+crate-type = ["cdylib"]
 name = "quickjs_transform"
-path = "src/main.rs"
 
 [dependencies]
 rquickjs = { version = "0.6", default-features = false, features = ["bindgen"] }

@@ -1,0 +1,20 @@
+{
+  "name": "assemblyscript-json-transform",
+  "version": "1.0.0",
+  "description": "AssemblyScript JSON transformation using json-as",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "asbuild:release": "asc assembly/index.ts --target release --transform json-as/transform",
+    "asbuild": "npm run asbuild:release",
+    "build": "npm run asbuild && wasm-opt -Oz --strip-debug --strip-dwarf --strip-producers -o build/module.opt.wasm build/release.wasm",
+    "test": "node test.js"
+  },
+  "devDependencies": {
+    "@assemblyscript/loader": "^0.28.4",
+    "assemblyscript": "^0.28.4"
+  },
+  "dependencies": {
+    "json-as": "^1.1.21"
+  }
+}

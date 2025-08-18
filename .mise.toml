@@ -1,0 +1,469 @@
+[tools]
+go = "1.24"
+"rust" = { version = "1.83.0" }
+
+# ============================================================================
+# Individual Implementation Build Tasks
+# ============================================================================
+
+# Basic implementation - Go
+[tasks."build:basic:go"]
+description = "Build basic implementation with Go"
+env.GOOS = "js"
+env.GOARCH = "wasm"
+run = """
+set -euo pipefail
+echo "Building basic implementation with Go..."
+mkdir -p assets/wasm
+go mod tidy > /dev/null 2>&1
+go build -trimpath -o main.wasm implementations/basic/main.go
+gzip -9 -c main.wasm > assets/wasm/lib.wasm.gz
+rm main.wasm
+cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" assets/wasm/wasm_exec.js
+echo "✅ Basic Go build complete: $(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+"""
+
+# Basic implementation - TinyGo
+[tasks."build:basic:tinygo"]
+description = "Build basic implementation with TinyGo"
+run = """
+set -euo pipefail
+echo "Building basic implementation with TinyGo..."
+if ! command -v tinygo >/dev/null 2>&1; then
+  echo "❌ Error: TinyGo is not installed"
+  exit 1
+fi
+mkdir -p assets/wasm
+go mod tidy > /dev/null 2>&1
+tinygo build -target wasm -o main.wasm implementations/basic/main.go
+gzip -9 -c main.wasm > assets/wasm/lib.wasm.gz
+rm main.wasm
+cp "$(tinygo env TINYGOROOT)/targets/wasm_exec.js" assets/wasm/wasm_exec.js
+echo "✅ Basic TinyGo build complete: $(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+"""
+
+# Goja implementation - Go only (doesn't work with TinyGo)
+[tasks."build:goja:go"]
+description = "Build goja implementation with Go"
+env.GOOS = "js"
+env.GOARCH = "wasm"
+run = """
+set -euo pipefail
+echo "Building goja implementation with Go..."
+mkdir -p assets/wasm
+go mod tidy > /dev/null 2>&1
+go build -trimpath -o main.wasm implementations/goja/main.go
+gzip -9 -c main.wasm > assets/wasm/lib.wasm.gz
+rm main.wasm
+cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" assets/wasm/wasm_exec.js
+echo "✅ Goja Go build complete: $(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+"""
+
+# Javy implementation
+[tasks."build:javy"]
+description = "Build Javy implementation (JavaScript to WASM)"
+run = """
+set -euo pipefail
+echo "Building Javy implementation..."
+if ! command -v javy >/dev/null 2>&1; then
+  echo "❌ Error: Javy CLI is not installed or not on PATH"
+  echo "Please install the Javy CLI from https://github.com/bytecodealliance/javy"
+  exit 1
+fi
+mkdir -p assets/wasm
+cd implementations/javy
+javy emit-plugin -o plugin.wasm
+javy build -C dynamic -C plugin=plugin.wasm -o transform_dynamic.wasm transform.js
+cd ../..
+gzip -9 -c implementations/javy/transform_dynamic.wasm > assets/wasm/lib.wasm.gz
+echo "✅ Javy build complete: $(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+"""
+
+# Porffor implementation
+[tasks."build:porffor"]
+description = "Build Porffor implementation (AOT JavaScript to WASM)"
+run = """
+set -euo pipefail
+echo "Building Porffor implementation..."
+mkdir -p assets/wasm
+cd implementations/porffor
+npx porf wasm transform.js transform.wasm
+cd ../..
+gzip -9 -c implementations/porffor/transform.wasm > assets/wasm/lib.wasm.gz
+echo "✅ Porffor build complete: $(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+"""
+
+# QuickJS implementation
+[tasks."build:quickjs"]
+description = "Build QuickJS implementation (Rust + QuickJS)"
+run = """
+set -euo pipefail
+echo "Building QuickJS implementation..."
+if ! command -v cargo >/dev/null 2>&1; then
+  echo "❌ Error: Rust/Cargo is not installed"
+  exit 1
+fi
+mkdir -p assets/wasm
+cd implementations/quickjs
+cargo build --target wasm32-wasip1 --release
+cd ../..
+gzip -9 -c implementations/quickjs/target/wasm32-wasip1/release/quickjs_transform.wasm > assets/wasm/lib.wasm.gz
+echo "✅ QuickJS build complete: $(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+"""
+
+# AssemblyScript implementation
+[tasks."build:assemblyscript"]
+description = "Build AssemblyScript implementation with json-as"
+run = """
+set -euo pipefail
+echo "Building AssemblyScript implementation..."
+if ! command -v npm >/dev/null 2>&1; then
+  echo "❌ Error: npm is not installed"
+  exit 1
+fi
+mkdir -p assets/wasm
+cd implementations/assemblyscript
+npm install --legacy-peer-deps > /dev/null 2>&1
+npm run asbuild > /dev/null 2>&1
+cd ../..
+gzip -9 -c implementations/assemblyscript/build/release.wasm > assets/wasm/lib.wasm.gz
+echo "✅ AssemblyScript build complete: $(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+"""
+
+# AssemblyScript optimized implementation
+[tasks."build:assemblyscript:optimized"]
+description = "Build optimized AssemblyScript implementation"
+run = """
+set -euo pipefail
+echo "Building optimized AssemblyScript implementation..."
+mkdir -p assets/wasm
+cd implementations/assemblyscript
+npm install --legacy-peer-deps > /dev/null 2>&1
+npm run asbuild > /dev/null 2>&1
+if command -v wasm-opt >/dev/null 2>&1; then
+  wasm-opt -Oz --enable-bulk-memory --strip-debug --strip-dwarf --strip-producers --converge build/release.wasm -o build/release_opt.wasm
+  mv build/release_opt.wasm build/release.wasm
+fi
+cd ../..
+gzip -9 -c implementations/assemblyscript/build/release.wasm > assets/wasm/lib.wasm.gz
+echo "✅ AssemblyScript optimized build complete: $(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+"""
+
+
+# ============================================================================
+# Optimized Build Tasks
+# ============================================================================
+
+[tasks."build:basic:go:optimized"]
+description = "Build basic implementation with optimized Go"
+env.GOOS = "js"
+env.GOARCH = "wasm"
+env.CGO_ENABLED = "0"
+run = """
+set -euo pipefail
+echo "Building basic implementation with optimized Go..."
+mkdir -p assets/wasm
+go mod tidy > /dev/null 2>&1
+go build -ldflags="-s -w -buildid=" -gcflags="-l=4 -B -C" -trimpath -o main.wasm implementations/basic/main.go
+if command -v wasm-opt >/dev/null 2>&1; then
+  wasm-opt -Oz --enable-bulk-memory --enable-sign-ext --converge main.wasm -o main_opt.wasm
+  mv main_opt.wasm main.wasm
+fi
+gzip -9 -c main.wasm > assets/wasm/lib.wasm.gz
+rm main.wasm
+cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" assets/wasm/wasm_exec.js
+echo "✅ Basic optimized Go build complete: $(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+"""
+
+[tasks."build:basic:tinygo:optimized"]
+description = "Build basic implementation with optimized TinyGo"
+run = """
+set -euo pipefail
+echo "Building basic implementation with optimized TinyGo..."
+if ! command -v tinygo >/dev/null 2>&1; then
+  echo "❌ Error: TinyGo is not installed"
+  exit 1
+fi
+mkdir -p assets/wasm
+go mod tidy > /dev/null 2>&1
+tinygo build -target wasm -no-debug -gc=leaking -opt=z -size=full -panic=trap -o main.wasm implementations/basic/main.go
+if command -v wasm-opt >/dev/null 2>&1; then
+  wasm-opt -Oz --enable-bulk-memory --enable-sign-ext --enable-mutable-globals --converge --all-features main.wasm -o main_opt.wasm
+  mv main_opt.wasm main.wasm
+fi
+gzip -9 -c main.wasm > assets/wasm/lib.wasm.gz
+rm main.wasm
+cp "$(tinygo env TINYGOROOT)/targets/wasm_exec.js" assets/wasm/wasm_exec.js
+echo "✅ Basic optimized TinyGo build complete: $(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+"""
+
+[tasks."build:goja:go:optimized"]
+description = "Build goja implementation with optimized Go"
+env.GOOS = "js"
+env.GOARCH = "wasm"
+env.CGO_ENABLED = "0"
+run = """
+set -euo pipefail
+echo "Building goja implementation with optimized Go..."
+mkdir -p assets/wasm
+go mod tidy > /dev/null 2>&1
+go build -ldflags="-s -w -buildid=" -gcflags="-l=4 -B -C" -trimpath -o main.wasm implementations/goja/main.go
+if command -v wasm-opt >/dev/null 2>&1; then
+  wasm-opt -Oz --enable-bulk-memory --enable-sign-ext --converge main.wasm -o main_opt.wasm
+  mv main_opt.wasm main.wasm
+fi
+gzip -9 -c main.wasm > assets/wasm/lib.wasm.gz
+rm main.wasm
+cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" assets/wasm/wasm_exec.js
+echo "✅ Goja optimized Go build complete: $(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+"""
+
+
+[tasks."build:porffor:optimized"]
+description = "Build Porffor implementation with optimization"
+run = """
+set -euo pipefail
+echo "Building optimized Porffor implementation..."
+mkdir -p assets/wasm
+cd implementations/porffor
+npx porf wasm -O3 transform.js transform.wasm
+cd ../..
+gzip -9 -c implementations/porffor/transform.wasm > assets/wasm/lib.wasm.gz
+echo "✅ Porffor optimized build complete: $(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+"""
+
+# ============================================================================
+# Individual Test Tasks (with dependencies on builds)
+# ============================================================================
+
+[tasks."test:basic:go"]
+description = "Test basic implementation with Go build"
+depends = ["build:basic:go"]
+run = """
+set -euo pipefail
+echo "Testing basic Go implementation..."
+npm install > /dev/null 2>&1
+npx vitest run --reporter=verbose
+"""
+
+[tasks."test:basic:tinygo"]
+description = "Test basic implementation with TinyGo build"
+depends = ["build:basic:tinygo"]
+run = """
+set -euo pipefail
+echo "Testing basic TinyGo implementation..."
+npm install > /dev/null 2>&1
+npx vitest run --reporter=verbose
+"""
+
+[tasks."test:goja:go"]
+description = "Test goja implementation with Go build"
+depends = ["build:goja:go"]
+run = """
+set -euo pipefail
+echo "Testing goja Go implementation..."
+npm install > /dev/null 2>&1
+npx vitest run --reporter=verbose
+"""
+
+
+[tasks."test:javy"]
+description = "Test Javy implementation"
+depends = ["build:javy"]
+run = """
+set -euo pipefail
+echo "Testing Javy implementation..."
+node -e "import('./implementations/javy/javy-adapter.js').then(async (javy) => {
+  console.log('🚀 Javy adapter loaded');
+  try {
+    const health = await javy.healthCheck();
+    console.log('💓 Health check:', JSON.parse(health).status);
+    const result = await javy.transformData('{\"name\":\"test\",\"value\":42}');
+    const parsed = JSON.parse(result);
+    console.log('🔄 Transform test:', parsed.engine === 'javy' ? 'PASS' : 'FAIL');
+    console.log('✅ Javy tests passed!');
+  } catch (error) {
+    console.error('❌ Javy test failed:', error.message);
+    process.exit(1);
+  }
+}).catch(console.error);"
+"""
+
+[tasks."test:porffor"]
+description = "Test Porffor implementation"
+depends = ["build:porffor"]
+run = """
+set -euo pipefail
+echo "Testing Porffor implementation..."
+if command -v wasmer >/dev/null 2>&1; then
+  cd implementations/porffor
+  if [ -f porffor-wasmer-test.sh ]; then
+    ./porffor-wasmer-test.sh
+  else
+    echo "⚠️  Porffor test script not found"
+  fi
+else
+  echo "⚠️  Wasmer not installed, skipping Porffor WASI test"
+fi
+"""
+
+[tasks."test:quickjs"]
+description = "Test QuickJS implementation"
+depends = ["build:quickjs"]
+run = """
+set -euo pipefail
+echo "Testing QuickJS implementation..."
+if [ -f implementations/quickjs/quickjs-wasi-test.js ]; then
+  node implementations/quickjs/quickjs-wasi-test.js
+elif command -v wasmer >/dev/null 2>&1; then
+  cd implementations/quickjs
+  if [ -f quickjs-wasmer-test.sh ]; then
+    ./quickjs-wasmer-test.sh
+  else
+    echo "⚠️  QuickJS test script not found"
+  fi
+else
+  echo "⚠️  No QuickJS test available"
+fi
+"""
+
+[tasks."test:assemblyscript"]
+description = "Test AssemblyScript implementation"
+depends = ["build:assemblyscript"]
+run = """
+set -euo pipefail
+echo "Testing AssemblyScript implementation..."
+cd implementations/assemblyscript
+node test.js
+"""
+
+# ============================================================================
+# Master Test Task - depends on all individual tests
+# ============================================================================
+
+[tasks.test]
+description = "Run all working implementation tests"
+depends = [
+  "test:basic:go",
+  "test:basic:tinygo",
+  "test:goja:go",
+  "test:porffor",
+  "test:quickjs",
+  "test:assemblyscript"
+]
+run = """
+echo "✅ All working tests completed successfully!"
+echo ""
+echo "Note: Skipped implementations:"
+echo "  - javy (CLI not available via npm package)"
+"""
+
+# ============================================================================
+# Build All Task - builds all implementations
+# ============================================================================
+
+[tasks."build:all"]
+description = "Build all implementations"
+depends = [
+  "build:basic:go",
+  "build:basic:tinygo",
+  "build:goja:go",
+  "build:javy",
+  "build:porffor",
+  "build:quickjs",
+  "build:assemblyscript"
+]
+run = """
+echo "✅ All builds completed successfully!"
+"""
+
+[tasks."build:all:optimized"]
+description = "Build all implementations with optimization"
+depends = [
+  "build:basic:go:optimized",
+  "build:basic:tinygo:optimized",
+  "build:goja:go:optimized",
+  "build:porffor:optimized",
+  "build:quickjs",
+  "build:assemblyscript:optimized"
+]
+run = """
+echo "✅ All optimized builds completed successfully!"
+"""
+
+# ============================================================================
+# Utility Tasks
+# ============================================================================
+
+[tasks.clean]
+description = "Clean build artifacts and node_modules"
+run = """
+set -euo pipefail
+echo "Cleaning build artifacts..."
+rm -rf assets/
+rm -f main.wasm main.wasm.gz
+rm -rf node_modules/
+rm -f implementations/javy/*.wasm
+rm -f implementations/porffor/*.wasm
+rm -rf implementations/quickjs/target/
+echo "✅ Clean complete"
+"""
+
+[tasks."size:compare"]
+description = "Compare sizes of all implementations"
+run = """
+set -euo pipefail
+echo "Building and comparing all implementations..."
+echo ""
+echo "| Implementation | Compiler | Size (gzipped) |"
+echo "|----------------|----------|----------------|"
+
+# Basic - Go
+mise run build:basic:go > /dev/null 2>&1
+printf "| Basic | Go | %s |\n" "$(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+
+# Basic - Go Optimized
+mise run build:basic:go:optimized > /dev/null 2>&1
+printf "| Basic | Go (opt) | %s |\n" "$(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+
+# Basic - TinyGo
+mise run build:basic:tinygo > /dev/null 2>&1
+printf "| Basic | TinyGo | %s |\n" "$(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+
+# Basic - TinyGo Optimized
+mise run build:basic:tinygo:optimized > /dev/null 2>&1
+printf "| Basic | TinyGo (opt) | %s |\n" "$(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+
+# Goja - Go
+mise run build:goja:go > /dev/null 2>&1
+printf "| Goja | Go | %s |\n" "$(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+
+# Goja - Go Optimized
+mise run build:goja:go:optimized > /dev/null 2>&1
+printf "| Goja | Go (opt) | %s |\n" "$(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+
+# Javy
+if command -v javy >/dev/null 2>&1; then
+  mise run build:javy > /dev/null 2>&1
+  printf "| Javy | Dynamic | %s |\n" "$(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+fi
+
+# Porffor
+mise run build:porffor > /dev/null 2>&1
+printf "| Porffor | AOT | %s |\n" "$(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+
+mise run build:porffor:optimized > /dev/null 2>&1
+printf "| Porffor | AOT (opt) | %s |\n" "$(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+
+# QuickJS
+mise run build:quickjs > /dev/null 2>&1
+printf "| QuickJS | Rust | %s |\n" "$(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+
+# AssemblyScript
+mise run build:assemblyscript > /dev/null 2>&1
+printf "| AssemblyScript | AssemblyScript | %s |\n" "$(du -h assets/wasm/lib.wasm.gz | cut -f1)"
+
+echo ""
+echo "✅ Size comparison complete!"
+"""
+
