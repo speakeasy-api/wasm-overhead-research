@@ -1,0 +1,29 @@
+[package]
+name = "quickjs-transform"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+console_error_panic_hook = "0.1"
+js-sys = "0.3"
+rquickjs = { version = "0.6", features = ["bindgen"] }
+
+[dependencies.web-sys]
+version = "0.3"
+features = ["console"]
+
+[profile.release]
+# Tell `rustc` to optimize for small code size.
+opt-level = "s"
+# Enable link time optimization
+lto = true
+# Strip debug symbols
+strip = true
+# Panic strategy for smaller binary size
+panic = "abort"

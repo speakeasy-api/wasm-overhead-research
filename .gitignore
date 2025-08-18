@@ -1,0 +1,99 @@
+# WASM Build Artifacts
+*.wasm
+*.cwasm
+*.wasm.gz
+
+# Go Build Artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Rust Build Artifacts
+/target/
+**/**/target/
+Cargo.lock
+*.pdb
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Test coverage
+coverage/
+*.lcov
+
+# Build directories
+build/
+dist/
+out/
+
+# Cache directories
+.cache/
+.parcel-cache/
+
+# Wasmer cache
+.wasmer/
+
+# TinyGo cache
+.tinygo-cache/
+
+# Optimization artifacts
+*_opt.wasm
+*_optimized.wasm
+
+# Compressed files (keep source, ignore generated)
+*.gz
+*.bz2
+*.xz
+
+# Benchmark results
+benchmark-results/
+*.bench
+
+# Documentation build artifacts
+docs/_build/
+site/
+
+# Local development
+local/
+scratch/
+tmp/

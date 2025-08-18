@@ -1,0 +1,32 @@
+{
+  "name": "goja-wasm-env",
+  "version": "1.0.0",
+  "description": "WASM binary with transformData method for JSON processing",
+  "main": "index.js",
+  "scripts": {
+    "build": "make build",
+    "build:go": "make build-go",
+    "build:tinygo": "make build-tinygo",
+    "test": "make test",
+    "test:go": "make test-go",
+    "test:tinygo": "make test-tinygo",
+    "clean": "make clean",
+    "watch": "make watch"
+  },
+  "keywords": [
+    "wasm",
+    "go",
+    "json",
+    "transform"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "glob": "^11.0.3",
+    "vitest": "^3.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "jsdom": "^26.1.0"
+  }
+}
