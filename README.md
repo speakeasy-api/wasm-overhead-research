@@ -6,7 +6,7 @@ A comprehensive analysis and comparison of different approaches to compile JavaS
 
 This repository explores 5 different JavaScript-to-WASM compilation approaches:
 
-1. **QuickJS (Rust)** - 285KB gzipped ✅ **Recommended for Wasmer**
+1. **QuickJS (Rust)** - 262KB gzipped ✅ **Recommended for Wasmer**
 2. **Javy Static** - 519KB gzipped ✅ **Wasmer Compatible**
 3. **Javy Dynamic** - 488KB + 2KB per module (Node.js only)
 4. **Porffor** - 75KB gzipped (Node.js only)
@@ -15,14 +15,14 @@ This repository explores 5 different JavaScript-to-WASM compilation approaches:
 ## 🏆 Key Results
 
 ### Wasmer Runtime Compatibility
-- **✅ QuickJS**: Perfect compatibility, 285KB gzipped
+- **✅ QuickJS**: Perfect compatibility, 262KB gzipped
 - **✅ Javy Static**: Perfect compatibility, 519KB gzipped
 - **❌ All others**: Require Node.js runtime or have compatibility issues
 
 ### Size Comparison (Gzipped)
 | Implementation  | Size      | Runtime    | Wasmer | Best For                  |
 | --------------- | --------- | ---------- | ------ | ------------------------- |
-| **QuickJS**     | **285KB** | WASI       | ✅      | **Production Wasmer**     |
+| **QuickJS**     | **262KB** | WASI       | ✅      | **Production Wasmer**     |
 | **Javy Static** | **519KB** | WASI       | ✅      | **Full JS Compatibility** |
 | Porffor         | 75KB      | Standard   | ❌      | Size-critical Node.js     |
 | TinyGo Basic    | 92KB      | Go Runtime | ❌      | Browser applications      |
@@ -208,4 +208,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**For production Wasmer deployment, use QuickJS (285KB) for optimal size or Javy Static (519KB) for maximum JavaScript compatibility.**
+**For production Wasmer deployment, use QuickJS (262KB) for optimal size or Javy Static (519KB) for maximum JavaScript compatibility.**

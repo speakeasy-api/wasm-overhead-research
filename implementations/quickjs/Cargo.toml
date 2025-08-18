@@ -8,14 +8,18 @@ name = "quickjs_transform"
 path = "src/main.rs"
 
 [dependencies]
-rquickjs = { version = "0.6", features = ["bindgen"] }
+rquickjs = { version = "0.6", default-features = false, features = ["bindgen"] }
 
 [profile.release]
-# Tell `rustc` to optimize for small code size.
-opt-level = "s"
-# Enable link time optimization
-lto = true
+# Tell `rustc` to optimize for smallest code size.
+opt-level = "z"
+# Enable thin link time optimization for better size
+lto = "thin"
 # Strip debug symbols
 strip = true
 # Panic strategy for smaller binary size
 panic = "abort"
+# Additional size optimizations
+codegen-units = 1
+# Reduce binary bloat
+overflow-checks = false
