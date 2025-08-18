@@ -18,7 +18,7 @@ This document tracks the binary sizes of different WASM implementations and opti
 | -------------- | ------------- | ------------ | ----------- | ------------- | ---------------------------------------------------- |
 | **TinyGo Opt** | 198           | **93**       | 53.3%       | **93KB**      | Each operation adds ~93KB                            |
 | **Porffor**    | 513           | **75**       | **85.4%**   | **75KB**      | Each operation adds ~75KB                            |
-| **QuickJS**    | 703           | **286**      | 59.3%       | **286KB**     | One-time runtime cost + minimal JS strings           |
+| **QuickJS**    | 718           | **285**      | 60.3%       | **285KB**     | One-time runtime cost + minimal JS strings           |
 | **Javy Total** | 492           | **488**      | 0.8%        | **488KB**     | **Additional operations add 4KB each (2KB gzipped)** |
 | Javy Plugin    | 488           | 486          | 0.4%        | -             | Shared runtime (one-time cost)                       |
 | Javy Module    | 4             | 2            | 50%         | -             | Per-operation cost                                   |
@@ -29,21 +29,21 @@ This document tracks the binary sizes of different WASM implementations and opti
 **For 1 operation:**
 - TinyGo: 93KB
 - Porffor: 75KB ⭐ **Smallest single operation**
-- QuickJS: 286KB
+- QuickJS: 285KB
 - Javy: 488KB
 - Goja: 3,716KB
 
 **For 5 operations:**
 - TinyGo: 465KB (5 × 93KB)
 - Porffor: 375KB (5 × 75KB)
-- QuickJS: ~287KB (286KB + ~1KB JS strings) ⭐ **Best for multiple operations**
+- QuickJS: ~286KB (285KB + ~1KB JS strings) ⭐ **Best for multiple operations**
 - Javy: 504KB (488KB + 4 × 4KB raw modules)
 - Goja: ~3,717KB (3,716KB + ~1KB JS strings)
 
 **For 10 operations:**
 - TinyGo: 930KB (10 × 93KB)
 - Porffor: 750KB (10 × 75KB)
-- QuickJS: ~288KB (286KB + ~1KB JS strings) ⭐ **Scales excellently**
+- QuickJS: ~286KB (285KB + ~1KB JS strings) ⭐ **Scales excellently**
 - Javy: 524KB (488KB + 9 × 4KB raw modules)
 - Goja: ~3,718KB (3,716KB + ~1KB JS strings)
 

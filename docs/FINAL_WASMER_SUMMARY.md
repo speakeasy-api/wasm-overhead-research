@@ -4,14 +4,14 @@
 
 After comprehensive testing of 5 different JavaScript-to-WASM approaches, **2 implementations work perfectly with Wasmer CLI**:
 
-1. **QuickJS (Rust)**: 283KB gzipped - ✅ **RECOMMENDED**
+1. **QuickJS (Rust)**: 285KB gzipped - ✅ **RECOMMENDED**
 2. **Javy Static**: 519KB gzipped - ✅ **ALTERNATIVE**
 
 ## 📊 Complete Compatibility Matrix
 
 | Implementation  | Raw Size    | Gzipped    | Wasmer CLI | Node.js | Best For                  |
 | --------------- | ----------- | ---------- | ---------- | ------- | ------------------------- |
-| **QuickJS**     | 692KB       | **283KB**  | ✅ Perfect  | ✅ Yes   | **Production Wasmer**     |
+| **QuickJS**     | 718KB       | **285KB**  | ✅ Perfect  | ✅ Yes   | **Production Wasmer**     |
 | **Javy Static** | 1.3MB       | **519KB**  | ✅ Perfect  | ✅ Yes   | **Full JS Compatibility** |
 | Javy Dynamic    | 1.2MB+3.5KB | 488KB+2KB  | ❌ No       | ✅ Yes   | Node.js only              |
 | Porffor         | 183KB       | 75KB       | ❌ No       | ✅ Yes   | Node.js only              |
@@ -20,7 +20,7 @@ After comprehensive testing of 5 different JavaScript-to-WASM approaches, **2 im
 ## 🏆 Wasmer Production Recommendations
 
 ### For Size-Optimized Deployment
-**Choose QuickJS**: 283KB gzipped
+**Choose QuickJS**: 285KB gzipped
 - Smallest Wasmer-compatible option
 - Full JavaScript engine with ECMAScript support
 - Perfect WASI compatibility
@@ -58,7 +58,7 @@ cargo build --release --target wasm32-wasip1
 # Test locally
 echo '{"test": "data"}' | wasmer run target/wasm32-wasip1/release/quickjs_transform.wasm
 
-# Deploy (283KB gzipped)
+# Deploy (285KB gzipped)
 cp target/wasm32-wasip1/release/quickjs_transform.wasm production/
 ```
 
@@ -106,6 +106,6 @@ Future WASM standards may enable:
 
 ## ✅ Final Verdict
 
-**For Wasmer production deployment, use QuickJS (283KB) for optimal size or Javy Static (519KB) for maximum JavaScript compatibility.** Both provide excellent performance, perfect Wasmer CLI compatibility, and production-ready reliability.
+**For Wasmer production deployment, use QuickJS (285KB) for optimal size or Javy Static (519KB) for maximum JavaScript compatibility.** Both provide excellent performance, perfect Wasmer CLI compatibility, and production-ready reliability.
 
 The dynamic linking approaches (Javy plugin, module linking) are not currently supported by Wasmer CLI but may become available through future Wasmer SDK enhancements or WASM Component Model adoption.

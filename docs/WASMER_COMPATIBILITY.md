@@ -6,7 +6,7 @@ This document outlines the compatibility of different WASM implementations with 
 
 | Implementation | Runtime Type   | Wasmer Compatible | Node.js Compatible | Notes                              |
 | -------------- | -------------- | ----------------- | ------------------ | ---------------------------------- |
-| **QuickJS**    | WASI           | ✅ **Excellent**   | ✅ Yes              | Full JS engine, 286KB gzipped      |
+| **QuickJS**    | WASI           | ✅ **Excellent**   | ✅ Yes              | Full JS engine, 285KB gzipped      |
 | **Porffor**    | Standard WASM  | ⚠️ **Partial**     | ✅ Yes              | Requires legacy exceptions support |
 | **Javy**       | WASI (Dynamic) | ⚠️ **Partial**     | ✅ Yes              | Requires plugin loading, 488KB     |
 | **Go/TinyGo**  | Go Runtime     | ❌ **No**          | ✅ Yes              | Requires wasm_exec.js              |
@@ -16,7 +16,7 @@ This document outlines the compatibility of different WASM implementations with 
 
 ### 1. QuickJS (Recommended for Full JS Engine)
 
-**Size**: 286KB gzipped  
+**Size**: 285KB gzipped
 **Runtime**: WASI (wasm32-wasip1)  
 **Compatibility**: ✅ Perfect Wasmer compatibility
 
@@ -30,7 +30,7 @@ wasmer run implementations/quickjs/target/wasm32-wasip1/release/quickjs_transfor
 
 **Advantages**:
 - Full JavaScript engine with ECMAScript compatibility
-- One-time 286KB cost + minimal string overhead
+- One-time 285KB cost + minimal string overhead
 - Excellent scaling for multiple operations
 - 92% smaller than Goja
 - Direct WASI compatibility
@@ -199,7 +199,7 @@ make test-wasmer
 ## Summary
 
 **Best for Wasmer SDK Integration**:
-1. **QuickJS**: Full JavaScript engine, excellent WASI compatibility (283KB) ⭐ **VERIFIED WORKING**
+1. **QuickJS**: Full JavaScript engine, excellent WASI compatibility (285KB) ⭐ **VERIFIED WORKING**
 2. **Porffor**: Size-optimized but incompatible with Wasmer (75KB) ❌ **NOT SUPPORTED**
 
 **Verified Test Results**:
@@ -207,4 +207,4 @@ make test-wasmer
 - ❌ **Porffor + Wasmer**: Legacy exceptions not supported, even with `--enable-all`
 - ⚠️ **Javy + Wasmer**: Dynamic linking requires special handling
 
-**Final Recommendation**: Use **QuickJS** as the primary choice for Wasmer SDK integration. It provides perfect WASI compatibility with full JavaScript engine capabilities at 283KB gzipped, making it ideal for production Wasmer deployments across all supported programming languages.
+**Final Recommendation**: Use **QuickJS** as the primary choice for Wasmer SDK integration. It provides perfect WASI compatibility with full JavaScript engine capabilities at 285KB gzipped, making it ideal for production Wasmer deployments across all supported programming languages.
