@@ -1,0 +1,10 @@
+[package]
+name = "extism_echo"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+extism-pdk = "1.2"
+
+[lib]
+crate-type = ["cdylib"]

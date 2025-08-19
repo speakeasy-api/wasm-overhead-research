@@ -467,3 +467,75 @@ echo ""
 echo "✅ Size comparison complete!"
 """
 
+# ============================================================================
+# Benchmark Tasks
+# ============================================================================
+
+[tasks."benchmark:all"]
+description = "Run comprehensive benchmarks for all implementations"
+depends = ["build:all:optimized"]
+run = """
+set -euo pipefail
+echo "Running comprehensive benchmarks..."
+node --expose-gc benchmark.js
+echo "✅ Benchmarks complete! Results saved to results/"
+"""
+
+[tasks."benchmark:wasmer"]
+description = "Benchmark implementations with Wasmer runtime"
+run = """
+set -euo pipefail
+echo "Benchmarking with Wasmer runtime..."
+if ! command -v wasmer >/dev/null 2>&1; then
+  echo "❌ Error: Wasmer is not installed"
+  echo "Please install Wasmer from https://wasmer.io/"
+  exit 1
+fi
+node benchmark-wasmer.js
+echo "✅ Wasmer benchmarks complete! Results saved to results/wasmer/"
+"""
+
+[tasks."benchmark:extism"]
+description = "Benchmark implementations with Extism runtime"
+run = """
+set -euo pipefail
+echo "Benchmarking with Extism runtime..."
+node benchmark-extism.js
+echo "✅ Extism benchmarks complete! Results saved to results/extism/"
+"""
+
+[tasks."benchmark:regenerate"]
+description = "Regenerate all benchmark data"
+depends = ["benchmark:all", "benchmark:wasmer", "benchmark:extism"]
+run = """
+echo "✅ All benchmark data regenerated!"
+"""
+
+# ============================================================================
+# Runtime SDK Evaluation Tasks
+# ============================================================================
+
+[tasks."measure:runtimes:all"]
+description = "Measure all runtime SDK overhead"
+run = "cd runtimes && ./measure_all.sh"
+
+[tasks."measure:wasmer:python"]
+description = "Measure Wasmer Python SDK overhead"
+run = "cd runtimes/wasmer/python && python3 measure.py"
+
+[tasks."measure:wasmer:typescript"]
+description = "Measure Wasmer TypeScript SDK overhead"
+run = "cd runtimes/wasmer/typescript && npm install --silent && npx tsx measure.ts"
+
+[tasks."measure:wasmer:go"]
+description = "Measure Wasmer Go SDK overhead"
+run = "cd runtimes/wasmer/go && ./measure.sh"
+
+[tasks."measure:extism:python"]
+description = "Measure Extism Python SDK overhead"
+run = "cd runtimes/extism/python && python3 measure.py"
+
+[tasks."build:test-modules"]
+description = "Build test WASM modules for runtime evaluation"
+run = "cd runtimes/test-modules && python3 create_test_modules.py"
+

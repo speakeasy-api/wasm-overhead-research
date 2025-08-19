@@ -1,0 +1,28 @@
+{
+  "runtime": "wasmer",
+  "language": "typescript",
+  "os": "darwin",
+  "arch": "arm64",
+  "versions": {
+    "node": "v23.10.0",
+    "sdk": "^0.9.0"
+  },
+  "baseline": {
+    "node_modules_size_bytes": 0,
+    "app_size_bytes": 375
+  },
+  "with_runtime": {
+    "node_modules_size_bytes": 13468839,
+    "app_size_bytes": 1213,
+    "download_size_bytes": 7289254,
+    "native_libs_count": 0,
+    "native_libs_total_size_bytes": 0
+  },
+  "delta": {
+    "node_modules_size_bytes": 13468839,
+    "download_size_bytes": 7289254
+  },
+  "native_libs": [],
+  "offline_viable": true,
+  "notes": "Wasmer SDK for TypeScript/Node.js"
+}

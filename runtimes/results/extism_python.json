@@ -1,0 +1,35 @@
+{
+  "runtime": "extism",
+  "language": "python",
+  "os": "darwin",
+  "arch": "arm64",
+  "versions": {
+    "python": "3.13.3",
+    "sdk": "1.0.0"
+  },
+  "baseline": {
+    "venv_size_bytes": 11177602
+  },
+  "with_runtime": {
+    "venv_size_bytes": 34134708,
+    "download_size_bytes": 7440416,
+    "native_libs_count": 2,
+    "native_libs_total_size_bytes": 20795776
+  },
+  "delta": {
+    "venv_size_bytes": 22957106,
+    "download_size_bytes": 7440416
+  },
+  "native_libs": [
+    {
+      "path": "venv/lib/python3.13/site-packages/_cffi_backend.cpython-313-darwin.so",
+      "size": 212544
+    },
+    {
+      "path": "venv/lib/python3.13/site-packages/extism_sys/libextism_sys.dylib",
+      "size": 20583232
+    }
+  ],
+  "offline_viable": true,
+  "notes": "Extism Python SDK"
+}

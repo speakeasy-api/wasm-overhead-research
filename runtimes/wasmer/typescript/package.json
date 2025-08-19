@@ -1,0 +1,19 @@
+{
+  "name": "wasmer-typescript-eval",
+  "version": "1.0.0",
+  "description": "Wasmer TypeScript runtime evaluation",
+  "main": "main.js",
+  "scripts": {
+    "start": "tsx main.ts",
+    "baseline": "tsx baseline.ts",
+    "measure": "tsx measure.ts"
+  },
+  "dependencies": {
+    "@wasmer/sdk": "^0.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

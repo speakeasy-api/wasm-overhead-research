@@ -1,0 +1,8 @@
+=== JavaScript to WebAssembly Size Analysis ===
+
+Implementation,Raw WASM (bytes),Gzipped (bytes),Raw KB,Gzipped KB,Compression %,vs Smallest
+---
+AssemblyScript,18860,8401,18.4,8.2,60.0,baseline
+Porffor,525212,76950,512.9,75.1,90.0,9.1x
+QuickJS,648385,271964,633.1,265.5,60.0,32.3x
+Go+Goja,15944768,3745018,15571.0,3657.2,80.0,445.7x

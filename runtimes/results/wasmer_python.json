@@ -1,0 +1,28 @@
+{
+  "runtime": "wasmer",
+  "language": "python",
+  "os": "darwin",
+  "arch": "arm64",
+  "versions": {
+    "python": "3.13.3",
+    "sdk": "unknown"
+  },
+  "baseline": {
+    "venv_size_bytes": 11177602,
+    "app_size_bytes": 319
+  },
+  "with_runtime": {
+    "venv_size_bytes": 11181599,
+    "app_size_bytes": 1112,
+    "download_size_bytes": 3483,
+    "native_libs_count": 0,
+    "native_libs_total_size_bytes": 0
+  },
+  "delta": {
+    "venv_size_bytes": 3997,
+    "download_size_bytes": 3483
+  },
+  "native_libs": [],
+  "offline_viable": true,
+  "notes": "Wasmer Python with Cranelift compiler"
+}

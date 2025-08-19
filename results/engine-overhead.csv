@@ -1,0 +1,15 @@
+Ecosystem,Package Manager,Core SDK Package(s),Core SDK Size (Est.),Key Dependencies & Rationale,Dependencies Size (Est.),Total Estimated Overhead,Architectural Model
+Python,PyPI,extism,~11.4 kB,cffi (FFI to libextism) + libextism (Core Runtime),~200 kB + 5.5 MB,~5.7 MB,libextism + FFI
+JavaScript/TS,NPM / JSR,@extism/extism,~2.12 MB,None (Bundles Wasm kernel),0,~2.12 MB,Native Runtime (V8 etc.)
+Rust,Crates.io,extism,~72.1 kB,libextism-sys (static link),Included in final binary,Varies (Statically Linked),libextism (Static)
+.NET (C#/F#),NuGet,Extism.Sdk + Extism.runtime.all,~93 kB + ~15 kB,libextism (Bundled in runtime pkg),~5.5 MB,~5.6 MB,libextism + P/Invoke
+Go,Go Modules,github.com/extism/go-sdk,N/A,wazero (Native Wasm Runtime),N/A,N/A (Pure Go),Native Runtime (wazero)
+Java (Standard),Maven,org.extism.sdk:extism,N/A,JNA (FFI) + libextism (Core Runtime),~1.5 MB + 5.5 MB,~7.0 MB,libextism + FFI (JNA)
+Java (Chicory),Maven,org.extism.sdk:chicory-sdk,~68 kB,Chicory Runtime (Pure Java),N/A,~68 kB + Deps,Native Runtime (Chicory)
+Ruby,RubyGems,extism,~4.13 MB,ffi (FFI to libextism),~600 kB,~4.73 MB,libextism + FFI
+Elixir,Hex,extism,N/A,rustler (Rust NIFs) + Rust Toolchain,N/A,N/A (Compiles at build),libextism (NIF)
+PHP,Packagist,extism/extism,N/A,FFI (built-in) + libextism,5.5 MB,~5.5 MB,libextism + FFI
+Haskell,Hackage,extism,N/A,FFI packages + libextism,5.5 MB,~5.5 MB + Deps,libextism + FFI
+OCaml,opam,extism,N/A,ctypes (FFI) + libextism,5.5 MB,~5.5 MB + Deps,libextism + FFI
+Perl,CPAN,Extism,~1.0 MB,libextism (via Alien::libextism),~5.5 MB,~6.5 MB,libextism + FFI (XS)
+Zig,N/A,extism/zig-sdk,N/A,libextism (links against C ABI),5.5 MB,~5.5 MB,libextism + C Import

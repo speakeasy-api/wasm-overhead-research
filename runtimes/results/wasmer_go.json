@@ -1,0 +1,23 @@
+{
+  "runtime": "wasmer",
+  "language": "go",
+  "os": "darwin",
+  "arch": "arm64",
+  "versions": {
+    "go": "go1.24.5",
+    "sdk": "v1.0.4"
+  },
+  "baseline": {
+    "binary_size_bytes": 1589058
+  },
+  "with_runtime": {
+    "binary_size_bytes": 1751906,
+    "module_cache_size_bytes": 47677440
+  },
+  "delta": {
+    "binary_size_bytes": 162848,
+    "module_cache_size_bytes": 47677440
+  },
+  "offline_viable": true,
+  "notes": "Wasmer Go SDK with static linking"
+}

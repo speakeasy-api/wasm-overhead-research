@@ -1,0 +1,18 @@
+{
+  "name": "extism-typescript-eval",
+  "version": "1.0.0",
+  "description": "Extism TypeScript runtime evaluation",
+  "main": "main.js",
+  "scripts": {
+    "start": "tsx main.ts",
+    "measure": "tsx measure.ts"
+  },
+  "dependencies": {
+    "@extism/extism": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

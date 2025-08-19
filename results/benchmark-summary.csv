@@ -1,0 +1,5 @@
+Implementation,Raw Size (KB),Gzipped (KB),Compression %,Cold Start (ms),Memory (MB)
+AssemblyScript,18.4,8.2,55.5,0.28,5.7
+QuickJS,633.2,264.4,58.2,1.16,5.8
+Porffor,512.9,74.2,85.5,N/A,5.7
+TinyGo,18.4,8.2,55.5,0.14,5.7

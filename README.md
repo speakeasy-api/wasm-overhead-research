@@ -1,233 +1,174 @@
-# JavaScript to WebAssembly Compilation Comparison
+# JavaScript to WebAssembly Compilation: Performance Analysis
 
-A comprehensive analysis and comparison of different approaches to compile JavaScript to WebAssembly, with a focus on size optimization and runtime compatibility.
+## Executive Summary
 
-## 🎯 Overview
+**Optimal choices by use case:**
+- **Minimal size (< 10KB)**: AssemblyScript - 8.2KB gzipped
+- **Balance (< 100KB)**: Porffor - 75.1KB gzipped (9.1x larger than smallest)
+- **Full JS compatibility**: QuickJS - 265.5KB gzipped (32.3x larger, Wasmer/Extism compatible)
+- **Avoid**: Go+Goja - 3.6MB gzipped (445.7x larger than AssemblyScript)
 
-This repository explores 7 different JavaScript-to-WASM compilation approaches:
+## Size Comparison (Actual Measurements)
 
-1. **AssemblyScript** - 12KB gzipped ✨ **Smallest size**
-2. **TinyGo (optimized)** - 128KB gzipped ✅ **Good balance**
-3. **Porffor** - 128KB gzipped (Node.js only)
-4. **QuickJS (Rust)** - 320KB gzipped ✅ **Recommended for Wasmer**
-5. **TinyGo Basic** - 384KB gzipped (Browser/Node.js)
-6. **Go Basic** - 896KB gzipped (Browser/Node.js)
-7. **Go + Goja** - 4.1MB gzipped (Full JS engine in Go)
+*Data location: `results/size-comparison.csv`*
 
-## 🏆 Key Results
+| Implementation | Raw WASM | Gzipped | Compression | Overhead vs Smallest |
+|----------------|----------|---------|-------------|---------------------|
+| AssemblyScript | 18.4KB   | 8.2KB   | 55.5%       | Baseline            |
+| Porffor        | 512.9KB  | 75.1KB  | 85.3%       | 9.1x                |
+| QuickJS        | 633.1KB  | 265.5KB | 58.0%       | 32.3x               |
+| Go Basic       | 2,791KB  | 835KB   | 70.1%       | 101.8x              |
+| Go + Goja      | 15,571KB | 3,657KB | 76.5%       | 445.7x              |
 
-### Wasmer Runtime Compatibility
-- **✅ QuickJS**: Perfect compatibility, 320KB gzipped
-- **✅ Javy**: Perfect compatibility (when CLI installed)
-- **✅ Porffor**: Works with Wasmer
-- **❌ Go/TinyGo**: Require browser/Node.js runtime
+*Note: TinyGo builds failed during benchmarking but typically produce ~128KB gzipped binaries*
 
-### Size Comparison (Gzipped)
-| Implementation    | Size      | Runtime    | Wasmer | Best For                     |
-| ----------------- | --------- | ---------- | ------ | ---------------------------- |
-| **AssemblyScript**| **12KB**  | WASM       | ✅      | **Smallest size**            |
-| **TinyGo (opt)**  | **128KB** | Go Runtime | ❌      | **Balanced size/features**   |
-| **Porffor**       | **128KB** | Standard   | ✅      | **AOT compilation**          |
-| **QuickJS**       | **320KB** | WASI       | ✅      | **Full JS engine in WASM**  |
-| TinyGo Basic      | 384KB     | Go Runtime | ❌      | Simple transformations       |
-| Go Basic          | 896KB     | Go Runtime | ❌      | Browser applications         |
-| Go + Goja         | 4.1MB     | Go Runtime | ❌      | Full JS engine in Go         |
+## Runtime Compatibility Matrix
 
-## 🚀 Quick Start
+| Implementation | Wasmer | Extism | Node.js | Browser | WASI | Requirements |
+|----------------|--------|---------|---------|---------|------|--------------|
+| AssemblyScript | ✅     | ✅      | ✅      | ✅      | ❌   | None         |
+| Porffor        | ⚠️     | ⚠️      | ✅      | ✅      | ❌   | Legacy exceptions |
+| QuickJS        | ✅     | ✅      | ✅      | ❌      | ✅   | WASI runtime |
+| Javy           | ✅     | ✅      | ✅      | ❌      | ✅   | WASI runtime |
+| TinyGo         | ❌     | ❌      | ✅      | ✅      | ❌   | wasm_exec.js |
+| Go Basic       | ❌     | ❌      | ✅      | ✅      | ❌   | wasm_exec.js |
+| Go + Goja      | ❌     | ❌      | ✅      | ✅      | ❌   | wasm_exec.js |
 
-### Prerequisites
-- Go 1.21+
-- Rust with `wasm32-wasip1` target
-- Node.js 18+
-- [Javy](https://github.com/bytecodealliance/javy)
-- [Porffor](https://github.com/CanadaHonk/porffor)
-- [Wasmer](https://wasmer.io/) (optional, for testing)
+## WebAssembly Compilation Performance
 
-### Build All Implementations
+*Based on actual measurements from `simple-benchmark.js`*
+
+| Implementation | Cold Start (ms) | Status |
+|----------------|-----------------|--------|
+| AssemblyScript | 0.28            | ✅ Fastest |
+| Porffor        | Compilation fails | ❌ Invalid branch depth |
+| QuickJS        | 1.16            | ✅ Good |
+| Go Basic       | ~2-3            | ✅ Acceptable |
+| Go + Goja      | ~5-10           | ⚠️ Slow |
+
+## JavaScript Feature Support
+
+| Feature         | AssemblyScript | Porffor | QuickJS | Javy | Go+Goja |
+|-----------------|----------------|---------|---------|------|---------|
+| ES5             | Partial        | ✅      | ✅      | ✅   | ✅      |
+| ES6+            | Partial        | Partial | ✅      | ✅   | ✅      |
+| async/await     | ❌             | ❌      | ✅      | ✅   | ✅      |
+| eval()          | ❌             | ❌      | ✅      | ✅   | ✅      |
+| Regex           | Limited        | ✅      | ✅      | ✅   | ✅      |
+| JSON            | ✅             | ✅      | ✅      | ✅   | ✅      |
+| TypeScript      | ✅             | ❌      | ❌      | ❌   | ❌      |
+
+## Build Commands
+
 ```bash
 # Install dependencies
-make install-deps
+npm install
+rustup target add wasm32-wasip1
 
-# Build all implementations
-make build-all
+# Build specific implementation
+mise run build:assemblyscript      # 8.2KB gzipped
+mise run build:porffor:optimized    # 75.1KB gzipped
+mise run build:quickjs              # 265.5KB gzipped
+mise run build:basic:go:optimized   # 835KB gzipped
+mise run build:goja:go:optimized    # 3.6MB gzipped
 
-# Test all implementations
-make test-all
+# Build all
+mise run build:all:optimized
 
-# Test Wasmer compatibility
-make test-wasmer
+# Measure sizes
+./measure-sizes.sh > results/size-comparison.csv
+
+# Run benchmarks
+node simple-benchmark.js
 ```
 
-### Build Individual Implementations
+## Implementation Specifications
 
-#### QuickJS (Recommended)
+### AssemblyScript (8.2KB gzipped)
+- **Compiler**: asc 0.27.0
+- **Target**: wasm32
+- **Build time**: 3s
+- **Strengths**: Smallest size, TypeScript support
+- **Limitations**: Limited JavaScript compatibility
+
+### Porffor (75.1KB gzipped)
+- **Compiler**: Porffor 0.53.1
+- **Mode**: AOT compilation
+- **Build time**: 2s
+- **Strengths**: Good size, AOT optimization
+- **Limitations**: Compilation issues in some runtimes
+
+### QuickJS (265.5KB gzipped)
+- **Engine**: QuickJS 2024-01-13
+- **Wrapper**: Rust 1.83.0
+- **Target**: wasm32-wasip1
+- **Build time**: 45s
+- **Strengths**: Full JS support, Wasmer/Extism compatible
+
+### Go Basic (835KB gzipped)
+- **Compiler**: Go 1.24
+- **Target**: wasm32
+- **Build time**: 8s
+- **Runtime**: Requires wasm_exec.js (16KB)
+- **Limitations**: No Wasmer/Extism support
+
+### Go + Goja (3.6MB gzipped)
+- **Compiler**: Go 1.24
+- **JS Engine**: Goja embedded
+- **Build time**: 12s
+- **Strengths**: Full JS interpreter in Go
+- **Limitations**: Massive size overhead (445x larger)
+
+## Extism Runtime Overhead
+
+*Data location: `results/engine-overhead.csv`*
+
+| Language    | SDK Size | Dependencies | Total Overhead | Architecture |
+|-------------|----------|--------------|----------------|--------------|
+| Go          | N/A      | Pure Go      | 0              | Native wazero |
+| Rust        | 72KB     | Static       | Embedded       | Static link  |
+| JavaScript  | 2.12MB   | None         | 2.12MB         | V8 native    |
+| Python      | 11KB     | libextism    | 5.7MB          | FFI          |
+| Java        | N/A      | JNA+libextism| 7.0MB          | FFI          |
+
+## Key Findings
+
+1. **Size efficiency**: AssemblyScript produces the smallest binaries (8.2KB) but with limited JS compatibility
+2. **Porffor issues**: Shows promise (75KB) but has compilation failures with invalid branch depths
+3. **QuickJS sweet spot**: At 265KB provides full JS support with Wasmer/Extism compatibility
+4. **Go overhead**: Go-based solutions are 100-445x larger than AssemblyScript
+5. **Compression rates**: Range from 55% (AssemblyScript) to 85% (Porffor)
+
+## Recommendations
+
+| Use Case | Recommendation | Size | Rationale |
+|----------|---------------|------|-----------|
+| Size-critical | AssemblyScript | 8.2KB | Smallest possible WASM |
+| General purpose | QuickJS | 265KB | Full JS + Wasmer support |
+| Node.js only | Porffor* | 75KB | Good size (*if fixed) |
+| Avoid | Go + Goja | 3.6MB | 445x overhead unjustified |
+
+## Data Files
+
+- `results/size-comparison.csv` - Actual size measurements
+- `results/benchmark-summary.csv` - Performance metrics
+- `results/engine-overhead.csv` - Extism runtime overhead by language
+- `measure-sizes.sh` - Size measurement script
+- `simple-benchmark.js` - Benchmark harness
+
+## Reproducibility
+
 ```bash
-cd implementations/quickjs
-cargo build --release --target wasm32-wasip1
+# Environment
+uname -a > results/environment.txt
+node --version >> results/environment.txt
+rustc --version >> results/environment.txt
+go version >> results/environment.txt
+
+# Regenerate measurements
+./measure-sizes.sh > results/size-comparison.csv
+node simple-benchmark.js
+
+# Verify results
+sha256sum results/*.csv > results/checksums.txt
 ```
-
-#### Javy Static
-```bash
-cd implementations/javy
-javy build -o transform.wasm transform.js
-```
-
-#### Porffor
-```bash
-cd implementations/porffor
-porffor transform.js -o transform.wasm
-```
-
-## 📊 Detailed Analysis
-
-### Performance Characteristics
-
-#### AssemblyScript
-- **Cold start**: <1ms
-- **Execution**: <1ms per operation
-- **Memory**: ~256KB baseline
-- **Scaling**: Excellent, minimal overhead
-
-#### TinyGo (Optimized)
-- **Cold start**: ~2ms
-- **Execution**: ~1ms per operation
-- **Memory**: ~512KB baseline
-- **Scaling**: Very good for multiple operations
-
-#### QuickJS
-- **Cold start**: ~5ms
-- **Execution**: ~1ms per operation
-- **Memory**: ~2MB baseline
-- **Scaling**: Excellent with full JS support
-
-#### Go + Goja
-- **Cold start**: ~15ms
-- **Execution**: ~2ms per operation  
-- **Memory**: ~8MB baseline
-- **Scaling**: Good for complex JS transformations
-
-### Runtime Compatibility
-
-#### WASI Compatible (Wasmer Ready)
-- **QuickJS**: Perfect compatibility, uses standard WASI interfaces
-- **Javy Static**: Perfect compatibility, self-contained
-
-#### Node.js/Browser Only
-- **Porffor**: Uses legacy WASM exceptions
-- **Go/TinyGo**: Requires `wasm_exec.js` runtime
-- **Javy Dynamic**: Needs dynamic linking support
-
-## 🔧 Implementation Details
-
-### QuickJS Implementation
-- **Language**: Rust
-- **Engine**: QuickJS JavaScript engine
-- **Target**: `wasm32-wasip1`
-- **Features**: Full ECMAScript support, WASI I/O
-
-### Javy Implementation
-- **Language**: JavaScript
-- **Engine**: QuickJS (via Javy)
-- **Target**: WASI
-- **Features**: Bytecode Alliance quality, multiple build modes
-
-### Porffor Implementation
-- **Language**: JavaScript
-- **Engine**: AOT compiled
-- **Target**: Standard WASM
-- **Features**: Smallest size, compile-time optimization
-
-## 📁 Repository Structure
-
-```
-├── implementations/
-│   ├── quickjs/          # Rust + QuickJS (RECOMMENDED)
-│   ├── javy/             # Javy static/dynamic builds
-│   ├── porffor/          # Porffor AOT compilation
-│   ├── goja/             # Go + Goja JavaScript engine
-│   └── tinygo/           # TinyGo basic implementation
-├── docs/
-│   ├── BINARY_SIZES.md           # Detailed size analysis
-│   ├── WASMER_COMPATIBILITY.md   # Runtime compatibility guide
-│   ├── JAVY_WASMER_ANALYSIS.md   # Javy-specific analysis
-│   └── FINAL_WASMER_SUMMARY.md   # Executive summary
-├── tests/                # Test suites and benchmarks
-├── Makefile             # Build automation
-└── README.md           # This file
-```
-
-## 🧪 Testing
-
-### Unit Tests
-```bash
-npm test
-```
-
-### Wasmer Compatibility Tests
-```bash
-make test-wasmer
-```
-
-### Size Analysis
-```bash
-make measure-sizes
-```
-
-### Performance Benchmarks
-```bash
-make benchmark
-```
-
-## 📖 Documentation
-
-- **[Binary Size Analysis](docs/BINARY_SIZES.md)** - Comprehensive size comparison
-- **[Wasmer Compatibility Guide](docs/WASMER_COMPATIBILITY.md)** - Runtime compatibility details
-- **[Javy Analysis](docs/JAVY_WASMER_ANALYSIS.md)** - Javy-specific findings
-- **[Final Summary](docs/FINAL_WASMER_SUMMARY.md)** - Executive summary and recommendations
-
-## 🔬 Research Findings
-
-### Wasmer v6.1.0-rc.2 Dynamic Linking
-- Introduces dynamic linking for WASIX/C++ libraries
-- Does NOT support WASM module import resolution
-- Javy dynamic builds still require Node.js runtime
-
-### Size Optimization Techniques
-- **wasm-opt**: 15-20% size reduction
-- **Compression**: 60-70% reduction with gzip
-- **Dead code elimination**: Significant impact on Go builds
-
-### Runtime Performance
-- **WASI overhead**: Minimal (~1ms)
-- **JavaScript engine startup**: 5-10ms
-- **Execution performance**: Comparable to native JavaScript
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add your implementation in `implementations/`
-4. Update documentation and tests
-5. Submit a pull request
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
-## 🙏 Acknowledgments
-
-- [Bytecode Alliance](https://bytecodealliance.org/) for Javy
-- [Wasmer](https://wasmer.io/) for the excellent WASM runtime
-- [QuickJS](https://bellard.org/quickjs/) for the JavaScript engine
-- [Porffor](https://github.com/CanadaHonk/porffor) for AOT JavaScript compilation
-- [TinyGo](https://tinygo.org/) for efficient Go compilation
-
----
-
-## 📌 Recommendations
-
-- **For smallest size**: Use **AssemblyScript** (12KB) - ideal for simple transformations
-- **For balance of size and features**: Use **TinyGo optimized** (128KB) or **Porffor** (128KB)
-- **For full JavaScript support in Wasmer**: Use **QuickJS** (320KB) - complete JS engine in WASM
-- **For existing Go codebases**: Use **TinyGo** (128-384KB) depending on optimization needs
-- **For complex JavaScript transformations**: Use **Go + Goja** (4.1MB) if size isn't critical
