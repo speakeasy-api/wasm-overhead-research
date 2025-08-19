@@ -1,10 +1,4 @@
-# WASM Overhead research RE JSON Transformations
-
-**Languages to compile to WASM:**
-- **Minimal size (< 10KB)**: AssemblyScript - 8.2KB gzipped
-- **Balance (< 100KB)**: Porffor - 75.1KB gzipped (9.1x larger than smallest)
-- **Full JS compatibility**: QuickJS - 265.5KB gzipped (32.3x larger, Wasmer/Extism compatible)
-- **Avoid**: Go+Goja - 3.6MB gzipped (445.7x larger than AssemblyScript)
+# WASM Overhead research
 
 ## Size Comparison
 
